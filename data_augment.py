@@ -1,3 +1,4 @@
+import albumentations as A
 import numpy as np 
 import random 
 import cv2 
@@ -38,13 +39,15 @@ class DataAugmentation:
         img = cv2.imread(img_path)
         
         # 画像保存
-        cv2.imwrite(self.SAVEDIR+"hi-contrast---------" +str(cnt)   +".jpg" ,self.__hi_contrast(img))
-        cv2.imwrite(self.SAVEDIR+"lo-contrast---------" +str(cnt)   +".jpg" ,self.__lo_contrast(img))
-        cv2.imwrite(self.SAVEDIR+"ganma-1-------------" +str(cnt)   +".jpg" ,self.__ganma_1(img))
-        cv2.imwrite(self.SAVEDIR+"ganma-2-------------" +str(cnt)   +".jpg" ,self.__ganma_2(img))
-        cv2.imwrite(self.SAVEDIR+"blur----------------" +str(cnt)   +".jpg" ,self.__blur(img))
-        cv2.imwrite(self.SAVEDIR+"gauss---------------" +str(cnt)   +".jpg" ,self.__gauss(img))
-        cv2.imwrite(self.SAVEDIR+"sp-noise------------" +str(cnt)   +".jpg" ,self.__sp_noise(img,0.05))
+        cv2.imwrite(self.SAVEDIR+"original_"        +str(cnt)  +".jpg" ,img)
+        cv2.imwrite(self.SAVEDIR+"hicontrast_"      +str(cnt)  +".jpg" ,self.__hi_contrast(img))
+        cv2.imwrite(self.SAVEDIR+"locontrast_"      +str(cnt)  +".jpg" ,self.__lo_contrast(img))
+        cv2.imwrite(self.SAVEDIR+"ganma1_"          +str(cnt)  +".jpg" ,self.__ganma_1(img))
+        cv2.imwrite(self.SAVEDIR+"ganma2_"          +str(cnt)  +".jpg" ,self.__ganma_2(img))
+        cv2.imwrite(self.SAVEDIR+"blur_"            +str(cnt)  +".jpg" ,self.__blur(img))
+        cv2.imwrite(self.SAVEDIR+"gauss_"           +str(cnt)  +".jpg" ,self.__gauss(img))
+        cv2.imwrite(self.SAVEDIR+"spnoise_"         +str(cnt)  +".jpg" ,self.__sp_noise(img,0.05))
+        cv2.imwrite(self.SAVEDIR+"multiplicative_"  +str(cnt)  +".jpg" ,self.__multiplicative_noise(img))
 
     def __hi_contrast(self,img):
         LUT_HC  = np.arange(256,dtype="uint8")
@@ -107,6 +110,16 @@ class DataAugmentation:
                     sp_noise_img[i][j] = img[i][j]
         
         return sp_noise_img
+
+    def __multiplicative_noise(self,img):
+        transform = A.Compose([
+            A.MultiplicativeNoise(multiplier=(0.3,3.5),elementwise=False),
+            A.MultiplicativeNoise(multiplier=(2.3,5.5),elementwise=True),
+            A.MultiplicativeNoise(multiplier=(0.3,1.5),elementwise=False)
+        ])
+        transformed         = transform(image=img)
+        transformed_image   = transformed["image"]
+        return transformed_image
 
 
 
