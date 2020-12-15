@@ -48,6 +48,7 @@ class DataAugmentation:
         cv2.imwrite(self.SAVEDIR+"gauss_"           +str(cnt)  +".jpg" ,self.__gauss(img))
         cv2.imwrite(self.SAVEDIR+"spnoise_"         +str(cnt)  +".jpg" ,self.__sp_noise(img,0.05))
         cv2.imwrite(self.SAVEDIR+"multiplicative_"  +str(cnt)  +".jpg" ,self.__multiplicative_noise(img))
+        cv2.imwrite(self.SAVEDIR+"motionBlur_"      +str(cnt)  +".jpg" ,self.__motion_blur(img))
 
     def __hi_contrast(self,img):
         LUT_HC  = np.arange(256,dtype="uint8")
@@ -119,11 +120,50 @@ class DataAugmentation:
         ])
         transformed         = transform(image=img)
         transformed_image   = transformed["image"]
+
+        return transformed_image
+
+    def __motion_blur(self,img):
+        transform = A.Compose([
+            A.MotionBlur(blur_limit=(29,35))
+        ])
+        transformed         = transform(image=img)
+        transformed_image   = transformed["image"]
+
         return transformed_image
 
 
+if __name__ == "__main__":
+    name            = [
+        "ando",
+        "higashi",
+        "kataoka",
+        "kodama",
+        "masuda",
+        "suetomo",
+    ]
+    org_dir_name    = "dataset"
+    new_dir_name    = "new-dataset"
+
+    class_instance  = []
 
 
+    for i,_ in enumerate(name):
+        # インスタンス化
+        class_instance.append(DataAugmentation())
+        
+        # オリジナル画像のPATH指定
+        class_instance[i].setOriginalDataSet(
+            org_dir_name    +   "/" +   name[i] +   "/"
+        )
+
+        # 拡張データのPATH指定
+        class_instance[i].setSaveDir(
+            new_dir_name    +   "/" +   name[i] +   "/"
+        )
+
+        # 拡張データを保存
+        class_instance[i].save()
 
 
 
