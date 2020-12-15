@@ -69,74 +69,6 @@ def test(testDir,label,imgSize,model):
         print("Suetomo accuracy : {} %".format(100*correct/200))
         return 100*correct/200
 
-def test_cnn(testDir,label,imgSize,model):
-    correct = 0
-
-    for cnt,f in enumerate(os.listdir(testDir)):
-        # 画像読み込み
-        img     =   cv2.imread(testDir+"/"+f)
-
-        # チャンネル数を1
-        imgGray =   cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
-
-        # リサイズ
-        img     =   cv2.resize(imgGray, (imgSize,imgSize))
-
-        # リシェイプ
-        img     =   np.reshape(img, (1,imgSize,imgSize))
-
-        # transpose
-        img     =   np.transpose(img,   (1,2,0))
-
-        # ToTensor 正規化
-        img     =   img.astype(np.uint8)
-        inputImg=   transforms.ToTensor()(img)
-
-        #   畳み込み            1
-        #   正規化              1
-        #   プーリング          1
-        #   畳み込み            2
-        #   正規化              2
-        #   プーリング          3
-        #   Flatten(ベクトル化)  
-        #   全結合(線形)        1
-        #   全結合(線形)        2
-        #   出力(log_softmax)
-        #   推論
-        output  =   model(inputImg[0])
-
-        #   予測値
-        p       =   model.forward(inputImg).exp()
-        p       =   p.to('cpu').detach().numpy().copy()
-        p       =   p[0]
-
-        if p.argmax() == label:
-            correct += 1
-
-        #   推論は1人200枚
-        if cnt >= 199:
-            break
-
-        if label == 0:
-            print("Ando    accuracy : {} %".format(100*correct/200))
-            return 100*correct/200
-        if label == 1:
-            print("Higashi accuracy : {} %".format(100*correct/200))
-            return 100*correct/200
-        if label == 2:
-            print("Kataoka accuracy : {} %".format(100*correct/200))
-            return 100*correct/200
-        if label == 3:
-            print("Kodama  accuracy : {} %".format(100*correct/200))
-            return 100*correct/200
-        if label == 4:
-            print("Masuda  accuracy : {} %".format(100*correct/200))
-            return 100*correct/200
-        if label == 5:
-            print("Suetomo accuracy : {} %".format(100*correct/200))
-            return 100*correct/200
-
-
 if __name__ == "__main__":
   ######------hyperParam-----#####
     epoch       = 40
@@ -152,8 +84,8 @@ if __name__ == "__main__":
     accPng      = "accImg/acc1.png"
     
     ######------モデルの設定(損失関数も変える)-----#####
-    # model       = NN.Net_log_softmax(num=6,inputSize=imgSize,Neuron=Neuron)
-    model       = NN.CNN(num=6,inputSize=imgSize,hidden1=hidden1,hidden2=hidden2)
+    model       = NN.Net_log_softmax(num=6,inputSize=imgSize,Neuron=Neuron)
+    # model       = NN.CNN(num=6,inputSize=imgSize,hidden1=hidden1,hidden2=hidden2)
 
     optimizer   = torch.optim.Adam(params=model.parameters(),lr=lr)
 
@@ -212,20 +144,14 @@ if __name__ == "__main__":
         suetomoAcc = 0
 
         with torch.no_grad():
-            # andoAcc    = test(andoDir,label=0,imgSize=imgSize,model=model)
-            # higashiAcc = test(higashiDir,label=1,imgSize=imgSize,model=model)
-            # kataokaAcc = test(kataokaDir,label=2,imgSize=imgSize,model=model)
-            # kodamaAcc  = test(kodamaDir,label=3,imgSize=imgSize,model=model)
-            # masudaAcc  = test(masudaDir,label=4,imgSize=imgSize,model=model)
-            # suetomoAcc = test(suetomoDir,label=5,imgSize=imgSize,model=model)
+            andoAcc    = test(andoDir,label=0,imgSize=imgSize,model=model)
+            higashiAcc = test(higashiDir,label=1,imgSize=imgSize,model=model)
+            kataokaAcc = test(kataokaDir,label=2,imgSize=imgSize,model=model)
+            kodamaAcc  = test(kodamaDir,label=3,imgSize=imgSize,model=model)
+            masudaAcc  = test(masudaDir,label=4,imgSize=imgSize,model=model)
+            suetomoAcc = test(suetomoDir,label=5,imgSize=imgSize,model=model)
 
-            andoAcc     =   test_cnn(andoDir,   label=0,    imgSize=imgSize,    model=model)
-            higashiAcc  =   test_cnn(higashiDir,label=1,    imgSize=imgSize,    model=model)
-            kataokaAcc  =   test_cnn(kataokaDir,label=2,    imgSize=imgSize,    model=model)
-            kodamaAcc   =   test_cnn(kodamaDir, label=3,    imgSize=imgSize,    model=model)
-            masudaAcc   =   test_cnn(masudaDir, label=4,    imgSize=imgSize,    model=model)
-            suetomoAcc  =   test_cnn(suetomoDir,label=5,    imgSize=imgSize,    model=model)
-
+           
         A["ando"].append(andoAcc)
         A["higashi"].append(higashiAcc)
         A["kataoka"].append(kataokaAcc)
