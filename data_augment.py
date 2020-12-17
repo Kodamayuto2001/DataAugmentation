@@ -39,16 +39,21 @@ class DataAugmentation:
         img = cv2.imread(img_path)
         
         # 画像保存
-        cv2.imwrite(self.SAVEDIR+"original_"        +str(cnt)  +".jpg" ,img)
-        cv2.imwrite(self.SAVEDIR+"hicontrast_"      +str(cnt)  +".jpg" ,self.__hi_contrast(img))
-        cv2.imwrite(self.SAVEDIR+"locontrast_"      +str(cnt)  +".jpg" ,self.__lo_contrast(img))
-        cv2.imwrite(self.SAVEDIR+"ganma1_"          +str(cnt)  +".jpg" ,self.__ganma_1(img))
-        cv2.imwrite(self.SAVEDIR+"ganma2_"          +str(cnt)  +".jpg" ,self.__ganma_2(img))
-        cv2.imwrite(self.SAVEDIR+"blur_"            +str(cnt)  +".jpg" ,self.__blur(img))
-        cv2.imwrite(self.SAVEDIR+"gauss_"           +str(cnt)  +".jpg" ,self.__gauss(img))
-        cv2.imwrite(self.SAVEDIR+"spnoise_"         +str(cnt)  +".jpg" ,self.__sp_noise(img,0.05))
-        cv2.imwrite(self.SAVEDIR+"multiplicative_"  +str(cnt)  +".jpg" ,self.__multiplicative_noise(img))
-        cv2.imwrite(self.SAVEDIR+"motionBlur_"      +str(cnt)  +".jpg" ,self.__motion_blur(img))
+        # cv2.imwrite(self.SAVEDIR+"original_"        +str(cnt)   +".jpg" ,img)
+        # cv2.imwrite(self.SAVEDIR+"hicontrast_"      +str(cnt)   +".jpg" ,self.__hi_contrast(img))
+        # cv2.imwrite(self.SAVEDIR+"locontrast_"      +str(cnt)   +".jpg" ,self.__lo_contrast(img))
+        # cv2.imwrite(self.SAVEDIR+"ganma1_"          +str(cnt)   +".jpg" ,self.__ganma_1(img))
+        # cv2.imwrite(self.SAVEDIR+"ganma2_"          +str(cnt)   +".jpg" ,self.__ganma_2(img))
+        # cv2.imwrite(self.SAVEDIR+"blur_"            +str(cnt)   +".jpg" ,self.__blur(img))
+        # cv2.imwrite(self.SAVEDIR+"gauss_"           +str(cnt)   +".jpg" ,self.__gauss(img))
+        # cv2.imwrite(self.SAVEDIR+"spnoise_"         +str(cnt)   +".jpg" ,self.__sp_noise(img,0.05))
+        # cv2.imwrite(self.SAVEDIR+"multiplicative_"  +str(cnt)   +".jpg" ,self.__multiplicative_noise(img))
+        # cv2.imwrite(self.SAVEDIR+"motionBlur_"      +str(cnt)   +".jpg" ,self.__motion_blur(img))
+        # cv2.imwrite(self.SAVEDIR+"glassBlur_"       +str(cnt)   +".jpg" ,self.__glass_blur(img))
+        # cv2.imwrite(self.SAVEDIR+"jpegCompression_" +str(cnt)   +".jpg" ,self.__jpeg_compression(img))
+        # cv2.imwrite(self.SAVEDIR+"isoNoise_"        +str(cnt)   +".jpg" ,self.__iso_noise(img))
+        cv2.imwrite(self.SAVEDIR+"downScale_"       +str(cnt)   +)
+
 
     def __hi_contrast(self,img):
         LUT_HC  = np.arange(256,dtype="uint8")
@@ -132,6 +137,46 @@ class DataAugmentation:
 
         return transformed_image
 
+    def __glass_blur(self,img):
+        transform = A.Compose([
+            A.GlassBlur(sigma=2.0,max_delta=3),
+            A.GlassBlur(sigma=4.0,max_delta=1),
+            A.GlassBlur(sigma=1.0,max_delta=5),
+        ])
+        transformed         =   transform(image=img)
+        transformed_image   =   transformed["image"]
+
+        return transformed_image
+
+    def __jpeg_compression(self,img):
+        transform = A.Compose([
+            A.JpegCompression(quality_lower=5,quality_upper=10),
+            A.JpegCompression(quality_lower=3,quality_upper=5),
+            A.JpegCompression(quality_lower=2,quality_upper=4),
+        ])
+        transformed         =   transform(image=img)
+        transformed_image   =   transformed["image"]
+
+        return transformed_image
+
+    def __iso_noise(self,img):
+        transform = A.Compose([
+            A.ISONoise(color_shift=(0.01,0.1),intensity=(1.5,2.3))
+        ])
+        transformed         =   transform(image=img)
+        transformed_image   =   transformed["image"]
+
+        return transformed_image
+
+    def __down_scale(self,img):
+        transform = A.Compose([
+            A.Downscale(scale_min=0.3,scale_max=0.8)
+        ])
+        transformed         =   transform(image=img)
+        transformed_image   =   transformed["image"]
+
+        return transformed_image
+    
 
 if __name__ == "__main__":
     name            = [
